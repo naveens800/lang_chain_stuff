@@ -1,0 +1,5 @@
+langchain==0.0.208
+deeplake
+openai==0.27.8
+tiktoken
+python-dotenv
