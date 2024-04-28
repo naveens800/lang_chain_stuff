@@ -1,20 +1,23 @@
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+# Before executing the following code, make sure to have
+# your OpenAI key saved in the “OPENAI_API_KEY” environment variable.
+chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 
-summarization_template = "Summarize the following text to one sentence: {text}"
-summarization_prompt = PromptTemplate(input_variables=["text"], template=summarization_template)
-summarization_chain = LLMChain(llm=llm, prompt=summarization_prompt)
+template = "You are an assistant that helps users find information about movies."
+system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+human_template = "Find information about the movie {movie_title}."
+human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
 
-text = """LangChain provides many modules that can be used to build language model applications.
-Modules can be combined to create more complex applications, or be used individually for simple applications.
-The most basic building block of LangChain is calling an LLM on some input.
-Let’s walk through a simple example of how to do this. For this purpose,
-let’s pretend we are building a service that generates a company name based on what the company makes."""
+chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
 
-summarized_text = summarization_chain.predict(text=text)
-print("Translated Text: ", summarized_text)
+response = chat(chat_prompt.format_prompt(movie_title="Inception").to_messages())
+
+print(response.content)
