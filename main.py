@@ -1,23 +1,13 @@
 from dotenv import load_dotenv
 load_dotenv(override=True)
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.llms import OpenAI
 
-# Before executing the following code, make sure to have
-# your OpenAI key saved in the “OPENAI_API_KEY” environment variable.
-chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+prompt = PromptTemplate(template="Question: {question}\nAnswer:", input_variables=["question"])
 
-template = "You are an assistant that helps users find information about movies."
-system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-human_template = "Find information about the movie {movie_title}."
-human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+llm = OpenAI(model_name="gpt-3.5-turbo-instruct", temperature=0)
+chain = LLMChain(llm=llm, prompt=prompt)
 
-chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-
-response = chat(chat_prompt.format_prompt(movie_title="Inception").to_messages())
-
-print(response.content)
+response = chain.run("what is the meaning of life?")
+print(response)
